@@ -1,8 +1,29 @@
+
 import CatagoryList from "@/components/CatagoryList";
 import ProductList from "@/components/ProductList";
 import Slider from "@/components/Slider";
+import { useWixClient } from "@/hooks/useWixClient";
+import {  wixClientServer } from "@/lib/wixClientServer";
+import { useEffect } from "react";
 
-export default function Home() {
+export default async function Home() {
+
+
+  // const wixClient = useWixClient()
+  // useEffect(() => {   
+  //   const getProduct = async()=>{
+  //     const response = await wixClient.products.queryProducts().find();
+  //     if(!response){
+  //       throw new Error("error while fetching data")
+  //     }
+  //     console.log(response)
+  //   }
+  //   getProduct()
+  // },[wixClient])
+  
+  const wixClient = await wixClientServer()
+  const response = await wixClient.products.queryProducts().find()
+  console.log(response)
   return (
    <>
       <Slider/>
