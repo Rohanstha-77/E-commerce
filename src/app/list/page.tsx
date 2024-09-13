@@ -1,9 +1,14 @@
 import Filter from '@/components/Filter'
 import ProductList from '@/components/ProductList'
+import { wixClientServer } from '@/lib/wixClientServer'
 import Image from 'next/image'
 import React from 'react'
 
-const page = () => {
+const page = async ({searchParams} : {searchParams : any}) => {
+
+  const wixClient = wixClientServer()
+  const response = await (await wixClient).collections.getCollectionBySlug(searchParams.catagories || "all-product")
+  // console.log(response)
   return (
     <>
       <div className='px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64 mt-24'>
@@ -19,7 +24,7 @@ const page = () => {
         <Filter/>
 
         <h1 className='mt-12 text-xl font-semibold'>Shoes for you</h1>
-        <ProductList/>
+        <ProductList catagoryId={response?.collection?._id || "00000000-000000-000000-000000000001"} searchParams= {searchParams}/>
       </div>
     </>
   )
