@@ -2,7 +2,6 @@ import Add from '@/components/Add'
 import CustomizeProduct from '@/components/CustomizeProduct'
 import ProductImages from '@/components/ProductImages'
 import { wixClientServer } from '@/lib/wixClientServer'
-import { timeStamp } from 'console'
 import DOMPurify from 'isomorphic-dompurify'
 import { notFound } from 'next/navigation'
 import React from 'react'
@@ -19,7 +18,8 @@ const page = async ({params}:{params: {slug:string}}) => {
   }
 
   const products = product.items[0]
-  console.log(products.productOptions)
+  // console.log(products.stock?.quantity)
+  
 
   return (
     <>
@@ -32,7 +32,9 @@ const page = async ({params}:{params: {slug:string}}) => {
       {/* Text  */}
       <div className='w-full lg:w-1/2 flex flex-col gap-6'>
         <h1 className='text-4xl font-medium'>{products?.name}</h1>
-        <p className='text-gray-500'>{products?.description}</p>
+        <p className='text-gray-500' dangerouslySetInnerHTML={{
+          __html: DOMPurify.sanitize(products?.description!)
+        }}/>
         <div className="h-[2px] bg-gray-100"/>
         {products?.priceData?.price === products?.priceData?.discountedPrice ? (
           <h2 className='font-medium text-2xl'>Rs{products?.priceData?.price}</h2>
@@ -43,10 +45,12 @@ const page = async ({params}:{params: {slug:string}}) => {
           </div>
         )}
         <div className="h-[2px] bg-gray-100"/>
-        {products.variants && products.productOptions && (
-          <CustomizeProduct productId={products._id !} varients= {products.variants} productOptions={products.productOptions}/>
+        {products.variants && products.productOptions ? (
+          <CustomizeProduct productId={products._id!} varients= {products.variants} productOptions={products.productOptions}/>
+        ):(
+          <Add productId={products._id!} varientId='00000000-0000-0000-0000-000000000000' stockNumber={products.stock?.quantity || 0}/>
+          
         )}
-        <Add/>
         <div className="h-[2px] bg-gray-100"/>
         {products?.additionalInfoSections!.map((section:any)=>(
           <div className="text-sm" key={section.title}>

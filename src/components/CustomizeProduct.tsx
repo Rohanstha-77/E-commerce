@@ -1,11 +1,25 @@
 "use client"
 import { products } from '@wix/stores'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import Add from './Add'
 
 const CustomizeProduct = ({productId, productOptions, varients}: {productId:string, varients: products.Variant[], productOptions: products.ProductOption[]}) => {
     // console.log(productOptions)
 
+    const [selectedVarient, setSeletcedVarient] = useState<products.Variant>()
     const [selectedOptions, setSelectedOptions] = useState<{[key:string]:string}>({})
+    // console.log(varients)
+    useEffect(()=>{
+        const varient = varients.find((v)=>{
+            const varientChoice = v.choices
+            // console.log(varientChoice)
+            if(!varientChoice) return false
+            
+            return Object.entries(selectedOptions).every(([key,value])=> varientChoice![key] === value)
+        })
+        // console.log(varient)
+        setSeletcedVarient(varient)
+    },[selectedOptions, varients])
     const handelOptionSelect =(optionType: string, choices: string)=>{
         setSelectedOptions((prev)=>({...prev,[optionType]:choices}))
     }
@@ -19,8 +33,10 @@ const CustomizeProduct = ({productId, productOptions, varients}: {productId:stri
             ) && varients.stock?.inStock && varients.stock?.quantity && varients.stock?.quantity > 0
         })
     }
+
+    // console.log(selectedVarient?._id)
     // console.log(selectedOptions)
-    // console.log(varients)
+    // console.log(selectedVarient)
   return (
     <>
         <div className="flex flex-col gap-6">
@@ -48,7 +64,7 @@ const CustomizeProduct = ({productId, productOptions, varients}: {productId:stri
                     </ul>
                 </div>
             ))}
-
+            <Add productId={productId} varientId={selectedVarient?._id || "00000000-0000-0000-0000-000000000000"} stockNumber={selectedVarient?.stock?.quantity || 0}/>
             {/* colors */}
 
             {/* <h4 className='font-medium'>Choose {option.name}</h4>

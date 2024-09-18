@@ -2,10 +2,10 @@ import Filter from '@/components/Filter'
 import ProductList from '@/components/ProductList'
 import { wixClientServer } from '@/lib/wixClientServer'
 import Image from 'next/image'
-import React from 'react'
+
+import React, { Suspense } from 'react'
 
 const page = async ({searchParams} : {searchParams : any}) => {
-
   const wixClient = wixClientServer()
   const response = await (await wixClient).collections.getCollectionBySlug(searchParams.catagories || "all-product")
   // console.log(response)
@@ -23,8 +23,10 @@ const page = async ({searchParams} : {searchParams : any}) => {
         </div>
         <Filter/>
 
-        <h1 className='mt-12 text-xl font-semibold'>Shoes for you</h1>
-        <ProductList catagoryId={response?.collection?._id || "00000000-000000-000000-000000000001"} searchParams= {searchParams}/>
+        <h1 className='mt-12 text-xl font-semibold'>{response?.collection?.name} for you</h1>
+        <Suspense fallback={"loading..."}>
+          <ProductList catagoryId={response?.collection?._id || "00000000-000000-000000-000000000001"} searchParams= {searchParams}/>
+        </Suspense>
       </div>
     </>
   )

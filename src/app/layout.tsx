@@ -4,6 +4,7 @@ import "./globals.css";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { WixClientContextProvider } from "@/context/wixContext";
+import { Suspense } from "react";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -29,11 +30,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <WixClientContextProvider>
-          <NavBar/>
-            {children}
-          <Footer/>
-        </WixClientContextProvider>
+        <Suspense fallback={"loading..."}>
+          <WixClientContextProvider>
+            <NavBar/>
+              {children}
+            <Footer/>
+          </WixClientContextProvider>
+        </Suspense>
       </body>
     </html>
   );

@@ -12,10 +12,30 @@ const PRODUCT_PER_PAGE = 20
 
 const ProductList = async ({catagoryId, limit, searchParams} : {catagoryId: string; limit?: number; searchParams?:any}) => {
     const wixClient = useWixClient()
-    const response = await wixClient.products.queryProducts().eq("collectionIds", catagoryId).limit(limit  || PRODUCT_PER_PAGE).find();
+    const ProductQuery = wixClient.products
+    .queryProducts()
+    .eq("collectionIds", catagoryId)
+    .startsWith("name" , searchParams?.name || '')
+    .hasSome("productType",[searchParams?.type || "physical","digital"])
+    .gt("priceData.price", searchParams?.min || 0)
+    .lt('priceData.price', searchParams?.max || 999999999)
+    .limit(limit  || PRODUCT_PER_PAGE)
+    // .find();
     // console.log(response)
+    // console.log(searchParams?.sort)
 
+    if(searchParams?.sort){
+        const [sortType , sortBy] = searchParams.sort.split(" ")
+        if(sortType === "asc"){
+            ProductQuery.ascending(sortBy)
+        }
+        if(sortType === "desc"){
+            ProductQuery.descending(sortBy)
+        }
+    }
 
+    const response = await ProductQuery.find()
+    // console.log(response)
   return (
     <>
         <div className='mt-12 flex gap-x-8 gap-y-16 justify-between flex-wrap'>
@@ -30,7 +50,7 @@ const ProductList = async ({catagoryId, limit, searchParams} : {catagoryId: stri
                     </div>
                     <div className='flex justify-between'>
                         <span className='font-medium'>{product.name}</span>
-                        <span className='font-bold'>Rs{product.priceData?.price}</span>
+                        <span className='font-bold'>Rs {product.priceData?.price}</span>
                     </div>
 
 
