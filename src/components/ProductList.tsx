@@ -5,10 +5,11 @@ import DOMPurify from 'isomorphic-dompurify';
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
+import Pagination from './Pagination';
 
 
 
-const PRODUCT_PER_PAGE = 20
+const PRODUCT_PER_PAGE = 8
 
 const ProductList = async ({catagoryId, limit, searchParams} : {catagoryId: string; limit?: number; searchParams?:any}) => {
     const wixClient = useWixClient()
@@ -20,6 +21,7 @@ const ProductList = async ({catagoryId, limit, searchParams} : {catagoryId: stri
     .gt("priceData.price", searchParams?.min || 0)
     .lt('priceData.price', searchParams?.max || 999999999)
     .limit(limit  || PRODUCT_PER_PAGE)
+    .skip(searchParams?.page ? parseInt(searchParams.page) * (limit || PRODUCT_PER_PAGE) : 0)
     // .find();
     // console.log(response)
     // console.log(searchParams?.sort)
@@ -35,10 +37,11 @@ const ProductList = async ({catagoryId, limit, searchParams} : {catagoryId: stri
     }
 
     const response = await ProductQuery.find()
-    // console.log(response)
+    // console.log(response.hasPrev())
+    // console.log(response.items)
   return (
     <>
-        <div className='mt-12 flex gap-x-8 gap-y-16 justify-between flex-wrap'>
+        <div className='mt-12 flex gap-x-8 gap-y-16  flex-wrap'>
             {response.items.map((product:products.Product)=>(
                 <Link href={'/' + product.slug} className='w-full flex flex-col gap-4 sm:w-[45%] lg:w-[22%]' key={product._id}>
                     <div className='relative w-full h-80'>
@@ -62,6 +65,13 @@ const ProductList = async ({catagoryId, limit, searchParams} : {catagoryId: stri
                     <button className='rounded-2xl ring-1 ring-primary text-primary py-2 px-4 text-xs hover:bg-primary hover:text-white w-max'>Add to cart</button>
                 </Link>
             ))}
+            {response.items.length === 0 ? "":(
+                <Pagination
+                currentPage={response.currentPage || 0}
+                hasPrev={response.hasPrev()}
+                hasNext={response.hasNext()}
+                />
+            )}
         </div>
     </>
   )

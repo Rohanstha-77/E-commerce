@@ -1,26 +1,42 @@
 "use client"
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import CartModel from './CartModel'
+import { useWixClient } from '@/hooks/useWixClient'
+import Cookies from 'js-cookie'
 
 const NavIcons = () => {
   const [isProfileOpen, setisProfileOpen] = useState(false)
   const [isCartOpen, setisCartOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter()
+  const pathName = usePathname();
+
 
   //Temporary
-  const isLoggedIn = false;
+  // const isLoggedIn = false;
+  const wixClient = useWixClient()
+  const isLoggedIn = wixClient.auth.loggedIn()
 
 
+  const handleLogout = async () => {
+    setIsLoading(true);
+    Cookies.remove("refreshToken");
+    const { logoutUrl } = await wixClient.auth.logout(window.location.href);
+    setIsLoading(false);
+    setisProfileOpen(false);
+    router.push(logoutUrl);
+  };
 
   const handleProfile=()=>{
     if(!isLoggedIn){
       router.push('/login')
+    }else{
+      setisProfileOpen(true)
     }
-    setisProfileOpen(true)
   }
   return (
     <>
@@ -30,9 +46,9 @@ const NavIcons = () => {
           <div className="absolute p-4 rounded-md top-14 right-48 bg-white text-sm shadow-[0_3px_10px_rgb(0,0,0,0.2)] z-20">
             <Link href="/">Profile</Link>
             <h1>Logout</h1>
-            {/* <div className="mt-2 cursor-pointer" onClick={handleLogout}>
+            <div className="mt-2 cursor-pointer" onClick={handleLogout}>
               {isLoading ? "Logging out" : "Logout"}
-            </div> */}
+            </div>
           </div>
         )}
         <Image src="/notification.png" alt='' width={22} height={22} className='cursor-pointer'/>
